@@ -65,7 +65,7 @@
             this.MinimumSize = new System.Drawing.Size(555, 555);
             this.Name = "CreateQrCodeForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "二维码生成器";
+            this.Text = "彩色二维码生成器";
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
