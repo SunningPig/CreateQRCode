@@ -8,6 +8,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Windows.Forms;
 using com.google.zxing;
 using com.google.zxing.qrcode;
@@ -24,8 +25,11 @@ namespace CreateQRCode
         }
         protected override void OnLoad(EventArgs e)
         {
-            //create QRCode
-            CreateQr();
+            this.txtContent.Text = @"http://www.cnblogs.com/xuliangxing/";
+            this.txtTitle.Text = "我的博客";
+            this.txtMark.Text = "Monks";
+            this.btnCreateQR.Click += btnCreateQR_Click;
+            this.btnSaveQR.Click += btnSaveQR_Click;
             base.OnLoad(e);
         }
         #endregion
@@ -33,13 +37,12 @@ namespace CreateQRCode
         #region Method
         private void CreateQr()
         {
-            string text = @"http://www.cnblogs.com/xuliangxing/";
             QRCodeWriter writer = new QRCodeWriter();
             Hashtable ht = new Hashtable();
             ht.Add(EncodeHintType.CHARACTER_SET, "UTF-8");
             ht.Add(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
             ht.Add(EncodeHintType.VERSION_START, 5);
-            Bitmap image = writer.encode(text, BarcodeFormat.QR_CODE, 400, 400, ht).ToBitmap();
+            Bitmap image = writer.encode(this.txtContent.Text, BarcodeFormat.QR_CODE, 460, 460, ht).ToBitmap();
             Bitmap bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
             Graphics graphics = Graphics.FromImage(bitmap);
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
@@ -50,7 +53,7 @@ namespace CreateQRCode
             #region 设置左上角特效颜色
             Bitmap bitmapLeftTop = SetBitmap(bitmap.Width, bitmap.Height);
             Color color = Color.FromArgb(200, 0xe0, 0x72, 1);
-            int num = 122 - (Encoding.UTF8.GetBytes(text).Length - 20) / 2;
+            int num = 122 - (Encoding.UTF8.GetBytes(this.txtContent.Text).Length - 20) / 2;
 
             for (int i = 0; i < bitmap.Width; i++)
             {
@@ -73,7 +76,7 @@ namespace CreateQRCode
             #endregion
 
             #region 设置标题特效
-            string str2 = "我的博客";
+            string str2 = this.txtTitle.Text;
             float emSize = 18f;
             emSize -= (str2.Length - 4) * 1.8f;
             Font font = new Font("微软雅黑", emSize, FontStyle.Bold);
@@ -81,7 +84,7 @@ namespace CreateQRCode
             float num7 = (bitmap.Width - ef.Width) / 2f;
             Brush brush = new SolidBrush(Color.FromArgb(0xff, 0x3a, 0xb2, 0xc2));
             Brush brush2 = new SolidBrush(Color.White);
-            int y = 45;
+            int y = 40;
             graphics.FillRectangle(brush2, new Rectangle((int)num7, y, (int)ef.Width - 3, (int)ef.Height - 3));
             graphics.DrawString(str2, font, brush, (float)((int)num7), (float)y);
 
@@ -95,7 +98,7 @@ namespace CreateQRCode
             graphics.FillEllipse(brush3, (bitmap.Width - num10) / 2, (bitmap.Height - num10) / 2, num10, num10);
             const int num11 = 110;
             graphics.FillEllipse(brush2, (bitmap.Width - num11) / 2, (bitmap.Height - num11) / 2, num11, num11);
-            str2 = "Monks";
+            str2 = this.txtMark.Text;
             float num12 = 32f;
             num12 -= (str2.Length - 3) * 3.5f;
             Font font2 = new Font("Meiryo", num12, FontStyle.Bold);
@@ -124,6 +127,37 @@ namespace CreateQRCode
             graphics.FillRectangle(brush, rect);
             graphics.Dispose();
             return image;
+        }
+        #endregion
+
+        #region Event
+        private void btnSaveQR_Click(object sender, EventArgs e)
+        {
+            if (this.pictureBox1.Image == null)
+            {
+                MessageBox.Show("请先生成二维码");
+                return;
+            }
+            using (SaveFileDialog saveQr = new SaveFileDialog())
+            {
+                saveQr.Filter = "bmp文件|*.bmp|jpg文件|*.jpg";
+                saveQr.Title = @"保存彩色二维码";
+                if (saveQr.ShowDialog() == DialogResult.OK)
+                {
+                    this.pictureBox1.Image.Save(saveQr.FileName);
+                }
+            }
+        }
+
+        private void btnCreateQR_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(this.txtContent.Text))
+            {
+                MessageBox.Show("网址或内容未设置");
+                return;
+            }
+            //create QRCode
+            CreateQr();
         }
         #endregion
     }
